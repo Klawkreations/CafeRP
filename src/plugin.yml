@@ -7,3 +7,47 @@ commands:
     usage: /<command>
     permission: CafeUtils.rp
     permission-message: You don't have <permission>
+permissions:
+  rp.*:
+    description: Gives access to all rp commands
+    children:
+      rp.list: true
+      rp.join: true
+      rp.switch: true
+      rp.leave: true
+      rp.cuff: true
+      rp.uncuff: true
+      rp.jail: true
+      rp.release: true
+      rp.setjail: true
+      rp.rmjail: true
+  rp.list:
+    description: Lists out all available roleplay roles
+    default: true
+  rp.join:
+    description: Allows you to join a roleplay role. /rp join [role]
+    default: true
+  rp.switch:
+    description: Allows you to switch to another avaialble roleplay role. /rp switch [role]
+    default: true
+  rp.leave:
+    description: Allows you to leave your current roleplay role. /rp leave
+    default: true
+  rp.cuff:
+    description: Allows you to cuff a player within 5 blocks from you if you are an officer. /rp cuff [playername]
+    default: true
+  rp.uncuff:
+    description: Allows you to uncuff a player within 5 blocks from you if you are an officer. /rp uncuff [playername]
+    default: true
+  rp.jail:
+    description: Allows you to send a player to jail for a period of time. /rp jail [playername] [periodinsec]
+    default: true
+  rp.release:
+    description: Allows you to free a player from jail. /rp release [playername]
+    default: true
+  rp.setjail:
+    description: Allows an admin to set the location of the server jail. /rp setjail
+    default: op
+  rp.rmjail:
+    description: Allows an admin to remove the current jail. /rp rmjail
+    default: op

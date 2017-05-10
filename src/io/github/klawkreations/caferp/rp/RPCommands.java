@@ -1,5 +1,6 @@
 package io.github.klawkreations.caferp.rp;
 
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
@@ -16,9 +17,13 @@ public class RPCommands {
     private Location jail;
     private Map<Player, Location> previousLocation;
 
-    public RPCommands(RPRoles playerRoles){
+    private Economy econ;
+
+    public RPCommands(RPRoles playerRoles, Economy econ){
         this.playerRoles = playerRoles;
         previousLocation = new HashMap<>();
+
+        this.econ = econ;
     }
 
     // Helper methods
@@ -35,7 +40,11 @@ public class RPCommands {
     public String cuff(Player instigator, String targetName) {
         Player target = getPlayerByName(targetName);
 
-        if (target != null && instigator.getLocation().distance(target.getLocation()) < 5.00 &&
+        if (target == null) {
+            return "Unable to cuff targeted player as they may not exist";
+        }
+
+        if (instigator.getLocation().distance(target.getLocation()) < 5.00 &&
                 playerRoles.getRole(instigator) == ERole.OFFICER){
             target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10000, 100));
             return "Successfully cuffed " + target.getName() + "!";
@@ -46,7 +55,11 @@ public class RPCommands {
     public String unCuff(Player instigator, String targetName) {
         Player target = getPlayerByName(targetName);
 
-        if (target != null && instigator.getLocation().distance(target.getLocation()) < 5.00 &&
+        if (target == null) {
+            return "Unable to uncuff targeted player as they may not exist";
+        }
+
+        if (instigator.getLocation().distance(target.getLocation()) < 5.00 &&
                 playerRoles.getRole(instigator) == ERole.OFFICER){
             target.removePotionEffect(PotionEffectType.SLOW);
             return "Successfully uncuffed " + target.getName() + "!";
@@ -57,6 +70,10 @@ public class RPCommands {
     public String jailPlayer(Player instigator, String targetName, String period) {
         Player target = getPlayerByName(targetName);
 
+        if (target == null) {
+            return "Unable to jail targeted player as they may not exist";
+        }
+
         if (jail == null){
             return "Unable to jail " + target.getName() + " since a jail has not been set by an admin!";
         }
@@ -65,7 +82,7 @@ public class RPCommands {
             return "Unable to jail " + target.getName() + " , period must be shorter than 600 seconds!";
         }
 
-        if (target != null && instigator.getLocation().distance(target.getLocation()) < 5.00 &&
+        if (instigator.getLocation().distance(target.getLocation()) < 5.00 &&
                 playerRoles.getRole(instigator) == ERole.OFFICER && target.hasPotionEffect(PotionEffectType.SLOW)){
 
             previousLocation.put(target, target.getLocation());
@@ -79,7 +96,11 @@ public class RPCommands {
     public String unjailPlayer(Player instigator, String targetName) {
         Player target = getPlayerByName(targetName);
 
-        if (target != null && previousLocation.containsKey(target) && playerRoles.getRole(instigator) == ERole.OFFICER){
+        if (target == null) {
+            return "Unable to free targeted player as they may not exist";
+        }
+
+        if (previousLocation.containsKey(target) && playerRoles.getRole(instigator) == ERole.OFFICER){
             target.teleport(previousLocation.get(target));
             previousLocation.remove(target);
             return "Successfully freed " + target.getName() + "!";
@@ -110,6 +131,6 @@ public class RPCommands {
 
     public String removeJail() {
         jail = null;
-        return "Removed the current jail";
+        return "Removed the current jail!";
     }
 }

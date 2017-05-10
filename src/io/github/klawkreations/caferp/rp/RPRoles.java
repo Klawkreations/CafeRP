@@ -1,18 +1,27 @@
 package io.github.klawkreations.caferp.rp;
 
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class RPRoles {
+public class RPRoles implements ActionListener {
     private ArrayList<RPWrapper> playerRoleList;
     private ScoreboardManager manager;
     private Scoreboard board;
     private Team officerTeam, loggerTeam, minerTeam, entrepreneurTeam, scientistTeam, criminalTeam;
 
-    public RPRoles(){
+    private final int PAYOUT_PERIOD = 600000;
+    private Timer payoutTimer;
+
+    private Economy econ;
+
+    public RPRoles(Economy econ){
         playerRoleList = new ArrayList<>();
         manager = Bukkit.getScoreboardManager();
         board = manager.getNewScoreboard();
@@ -42,6 +51,9 @@ public class RPRoles {
         for (Player players : Bukkit.getOnlinePlayers()) {
             players.setScoreboard(board);
         }
+
+        this.econ = econ;
+        payoutTimer = new Timer(PAYOUT_PERIOD, this);
     }
 
     public String listRoles() {
@@ -138,6 +150,38 @@ public class RPRoles {
             case CRIMINAL:
                 criminalTeam.removePlayer(rp.getPlayer());
                 break;
+        }
+    }
+
+    public void payOutSalary(RPWrapper rp) {
+        switch (rp.getRole()) {
+            case OFFICER:
+                econ.depositPlayer(rp.getPlayer(), 50.00);
+                break;
+            case LOGGER:
+                econ.depositPlayer(rp.getPlayer(), 25.00);
+                break;
+            case MINER:
+                econ.depositPlayer(rp.getPlayer(), 25.00);
+                break;
+            case ENTREPRENEUR:
+                econ.depositPlayer(rp.getPlayer(), 125.00);
+                break;
+            case SCIENTIST:
+                econ.depositPlayer(rp.getPlayer(), 75.00);
+                break;
+            case CRIMINAL:
+                econ.depositPlayer(rp.getPlayer(), 15.00);
+                break;
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (playerRoleList != null) {
+            for (RPWrapper rp : playerRoleList) {
+                payOutSalary(rp);
+            }
         }
     }
 }
