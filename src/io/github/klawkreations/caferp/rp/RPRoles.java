@@ -44,9 +44,14 @@ public class RPRoles {
         }
     }
 
-    //TODO: Modularize this with ERole's
     public String listRoles() {
-        return "Available Positions: OFFICER, LOGGER, MINER, ENTREPRENEUR, SCIENTIST, CRIMINAL";
+        ERole[] roles = ERole.values();
+        String titles = "Available roles: \n";
+
+        for (ERole role : roles){
+            titles += role.toString() + " \n";
+        }
+        return titles;
     }
 
     public String joinRole(Player player, String roleID) {
