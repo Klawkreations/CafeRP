@@ -19,6 +19,7 @@ public class RPCommands {
 
     private Economy econ;
 
+    //TODO: Refactor this class... make it beautiful
     public RPCommands(RPRoles playerRoles, Economy econ){
         this.playerRoles = playerRoles;
         previousLocation = new HashMap<>();
@@ -80,6 +81,7 @@ public class RPCommands {
             return "Unable to jail " + target.getName() + " since a jail has not been set by an admin!";
         }
         // TODO: Modularize this period with a config file!
+        // TODO: Implement an isInt method and check for it
         else if (Integer.parseInt(period) > 600) {
             return "Unable to jail " + target.getName() + " , period must be shorter than 600 seconds!";
         }

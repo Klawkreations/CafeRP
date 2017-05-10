@@ -109,47 +109,41 @@ public final class CafeRP extends JavaPlugin implements Listener {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (cmd.getName().equalsIgnoreCase("rp")) {
-                if (args[0].equalsIgnoreCase("list") && player.hasPermission("rp.list") && args != null && args.length == 1) {
-                    sender.sendMessage(roleManager.listRoles());
-                    return true;
+                if (args.length > 0) {
+                    if (args[0].equalsIgnoreCase("list") && player.hasPermission("rp.list") && args.length == 1) {
+                        sender.sendMessage(roleManager.listRoles());
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("join") && player.hasPermission("rp.join") && args.length == 2) {
+                        sender.sendMessage(roleManager.joinRole(player, args[1]));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("switch") && player.hasPermission("rp.switch") && args.length == 2) {
+                        sender.sendMessage(roleManager.switchRole(player, args[1]));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("leave") && player.hasPermission("rp.leave") && args.length == 1) {
+                        sender.sendMessage(roleManager.leaveRole(player));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("cuff") && player.hasPermission("rp.cuff") && args.length == 2) {
+                        sender.sendMessage(rpCommands.cuff(player, args[1]));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("uncuff") && player.hasPermission("rp.uncuff") && args.length == 2) {
+                        sender.sendMessage(rpCommands.unCuff(player, args[1]));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("jail") && player.hasPermission("rp.jail") && args.length == 3) {
+                        sender.sendMessage(rpCommands.jailPlayer(player, args[1], args[2]));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("release") && player.hasPermission("rp.release") && args.length == 2) {
+                        sender.sendMessage(rpCommands.unjailPlayer(player, args[1]));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("setjail") && player.hasPermission("rp.setjail") && args.length == 1) {
+                        sender.sendMessage(rpCommands.setJail(player));
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("rmjail") && player.hasPermission("rp.rmjail") && args.length == 1) {
+                        sender.sendMessage(rpCommands.removeJail());
+                        return true;
+                    }
                 }
-                else if (args[0].equalsIgnoreCase("join") && player.hasPermission("rp.join") && args != null && args.length == 2) {
-                    sender.sendMessage(roleManager.joinRole(player, args[1]));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("switch") && player.hasPermission("rp.switch") && args != null && args.length == 2) {
-                    sender.sendMessage(roleManager.switchRole(player, args[1]));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("leave") && player.hasPermission("rp.leave") && args != null && args.length == 1) {
-                    sender.sendMessage(roleManager.leaveRole(player));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("cuff") && player.hasPermission("rp.cuff") && args != null && args.length == 2) {
-                    sender.sendMessage(rpCommands.cuff(player, args[1]));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("uncuff") && player.hasPermission("rp.uncuff") && args != null && args.length == 2) {
-                    sender.sendMessage(rpCommands.unCuff(player, args[1]));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("jail") && player.hasPermission("rp.jail") && args != null && args.length == 3) {
-                    sender.sendMessage(rpCommands.jailPlayer(player, args[1], args[2]));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("release") && player.hasPermission("rp.release") &&args != null && args.length == 2) {
-                    sender.sendMessage(rpCommands.unjailPlayer(player, args[1]));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("setjail") && player.hasPermission("rp.setjail") && args != null && args.length == 1) {
-                    sender.sendMessage(rpCommands.setJail(player));
-                    return true;
-                }
-                else if (args[0].equalsIgnoreCase("rmjail") && player.hasPermission("rp.rmjail") && args != null && args.length == 1) {
-                    sender.sendMessage(rpCommands.removeJail());
-                    return true;
-                }
-                sender.sendMessage("Possible commands are: /rp join [role], /rp switch [role], /rp leave, " + "" +
+                //TODO: Improve this... it looks so unorganised.
+                sender.sendMessage("Possible commands are: /rp list, /rp join [role], /rp switch [role], /rp leave, " + "" +
                         " /rp cuff [playername], /rp uncuff [playername], /rp jail [playername] [periodinseconds], " +
                                 "/rp release [playername], /rp setjail, /rp rmjail");
                 return true;

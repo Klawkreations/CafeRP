@@ -16,7 +16,7 @@ public class RPRoles implements ActionListener {
     private Scoreboard board;
     private Team officerTeam, loggerTeam, minerTeam, entrepreneurTeam, scientistTeam, criminalTeam;
 
-    private final int PAYOUT_PERIOD = 600000;
+    private final int PAYOUT_PERIOD = 10000; //600000;
     private Timer payoutTimer;
 
     private Economy econ;
@@ -54,6 +54,7 @@ public class RPRoles implements ActionListener {
 
         this.econ = econ;
         payoutTimer = new Timer(PAYOUT_PERIOD, this);
+        payoutTimer.start();
     }
 
     public String listRoles() {
