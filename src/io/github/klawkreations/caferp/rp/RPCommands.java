@@ -23,6 +23,8 @@ public class RPCommands {
         this.playerRoles = playerRoles;
         previousLocation = new HashMap<>();
 
+        jail = null;
+
         this.econ = econ;
     }
 
@@ -122,7 +124,7 @@ public class RPCommands {
     // Criminal commands
     // Admin Commands
     public String setJail(Player player) {
-        if (jail != null) {
+        if (jail == null) {
             jail = player.getLocation();
             return "Successfully set jail at current location!";
         }

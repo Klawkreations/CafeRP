@@ -157,27 +157,34 @@ public class RPRoles implements ActionListener {
         switch (rp.getRole()) {
             case OFFICER:
                 econ.depositPlayer(rp.getPlayer(), 50.00);
+                rp.getPlayer().sendMessage("$50.00 has been deposited into your account.");
                 break;
             case LOGGER:
                 econ.depositPlayer(rp.getPlayer(), 25.00);
+                rp.getPlayer().sendMessage("$25.00 has been deposited into your account.");
                 break;
             case MINER:
                 econ.depositPlayer(rp.getPlayer(), 25.00);
+                rp.getPlayer().sendMessage("$25.00 has been deposited into your account.");
                 break;
             case ENTREPRENEUR:
                 econ.depositPlayer(rp.getPlayer(), 125.00);
+                rp.getPlayer().sendMessage("$125.00 has been deposited into your account.");
                 break;
             case SCIENTIST:
                 econ.depositPlayer(rp.getPlayer(), 75.00);
+                rp.getPlayer().sendMessage("$75.00 has been deposited into your account.");
                 break;
             case CRIMINAL:
                 econ.depositPlayer(rp.getPlayer(), 15.00);
+                rp.getPlayer().sendMessage("$15.00 has been deposited into your account.");
                 break;
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        Bukkit.broadcastMessage("It's payday!");
         if (playerRoleList != null) {
             for (RPWrapper rp : playerRoleList) {
                 payOutSalary(rp);

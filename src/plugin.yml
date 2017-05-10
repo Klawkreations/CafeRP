@@ -1,4 +1,4 @@
-name: CafeUtils
+name: CafeRP
 main: io.github.klawkreations.caferp.CafeRP
 version: 0.0.1
 commands:
