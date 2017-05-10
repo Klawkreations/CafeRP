@@ -1,0 +1,9 @@
+name: CafeUtils
+main: io.github.klawkreations.caferp.CafeRP
+version: 0.0.1
+commands:
+  rp:
+    description: Used for various rp classes
+    usage: /<command>
+    permission: CafeUtils.rp
+    permission-message: You don't have <permission>
