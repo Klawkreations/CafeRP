@@ -7,7 +7,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,16 +26,6 @@ public class RPCommands {
         jail = null;
 
         this.econ = econ;
-    }
-
-    // Helper methods
-    public Player getPlayerByName(String playerName){
-        for (Player players : Bukkit.getOnlinePlayers()){
-            if (players.getName().equalsIgnoreCase(playerName)){
-                return players;
-            }
-        }
-        return null;
     }
 
     // Officer commands
@@ -113,17 +102,21 @@ public class RPCommands {
     }
 
     // Logger commands
+
     // Miner commands
+
     // Entrepreneur commands
     public String invest(){
         return null;
     }
+
     // Scientist commands
     public Item createChemical() {
         return null;
     }
 
     // Criminal commands
+
     // Admin Commands
     public String setJail(Player player) {
         if (jail == null) {
@@ -136,5 +129,15 @@ public class RPCommands {
     public String removeJail() {
         jail = null;
         return "Removed the current jail!";
+    }
+
+    // Helper methods
+    public Player getPlayerByName(String playerName){
+        for (Player players : Bukkit.getOnlinePlayers()){
+            if (players.getName().equalsIgnoreCase(playerName)){
+                return players;
+            }
+        }
+        return null;
     }
 }
