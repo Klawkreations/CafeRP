@@ -1,15 +1,14 @@
 package io.github.klawkreations.caferp.rp;
 
-import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.HashMap;
-import java.util.Map;
+import net.milkbowl.vault.economy.Economy;
 
 public class RPCommands {
     private RPRoles playerRoles;
@@ -29,39 +28,11 @@ public class RPCommands {
     }
 
     // Officer commands
-    public String cuff(Player instigator, String targetName) {
-        Player target = getPlayerByName(targetName);
+    
 
-        if (target == null) {
-            return "Unable to cuff targeted player as they may not exist";
-        }
+    
 
-        if (instigator.getLocation().distance(target.getLocation()) < 5.00 &&
-                playerRoles.getRole(instigator) == ERole.OFFICER){
-            target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10000, 100));
-            return "Successfully cuffed " + target.getName() + "!";
-        }
-        return "Unable to cuff " + target.getName() + "!";
-    }
-
-    public String unCuff(Player instigator, String targetName) {
-        Player target = getPlayerByName(targetName);
-
-        if (target == null) {
-            return "Unable to uncuff targeted player as they may not exist";
-        }
-
-        if (instigator.getLocation().distance(target.getLocation()) < 5.00 &&
-                playerRoles.getRole(instigator) == ERole.OFFICER){
-            target.removePotionEffect(PotionEffectType.SLOW);
-            return "Successfully uncuffed " + target.getName() + "!";
-        }
-        return "Unable to uncuff " + target.getName() + "!";
-    }
-
-    public String jailPlayer(Player instigator, String targetName, String period) {
-        Player target = getPlayerByName(targetName);
-
+    public String jailPlayer(Player instigator, Player target, String period) {
         if (target == null) {
             return "Unable to jail targeted player as they may not exist";
         }
@@ -86,9 +57,7 @@ public class RPCommands {
         return "Unable to send " + target.getName() + " to jail!";
     }
 
-    public String unjailPlayer(Player instigator, String targetName) {
-        Player target = getPlayerByName(targetName);
-
+    public String unjailPlayer(Player instigator, Player target) {
         if (target == null) {
             return "Unable to free targeted player as they may not exist";
         }
@@ -132,12 +101,5 @@ public class RPCommands {
     }
 
     // Helper methods
-    public Player getPlayerByName(String playerName){
-        for (Player players : Bukkit.getOnlinePlayers()){
-            if (players.getName().equalsIgnoreCase(playerName)){
-                return players;
-            }
-        }
-        return null;
-    }
+    
 }

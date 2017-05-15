@@ -1,28 +1,38 @@
 package io.github.klawkreations.caferp.rp;
 
-import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.*;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.swing.Timer;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
+
+import io.github.klawkreations.caferp.rp.roles.RolePlayer;
+import net.milkbowl.vault.economy.Economy;
 
 public class RPRoles implements ActionListener {
-    private ArrayList<RPWrapper> playerRoleList;
+    private HashMap<Player, RolePlayer> playerRoles;
+    private HashMap<ERole, Team> teams;
     private ScoreboardManager manager;
     private Scoreboard board;
-    private Team officerTeam, loggerTeam, minerTeam, entrepreneurTeam, scientistTeam, criminalTeam;
+    //private Team officerTeam, loggerTeam, minerTeam, entrepreneurTeam, scientistTeam, criminalTeam;
+    
 
-    private final int PAYOUT_PERIOD = 10000; //600000;
+    private final int PAYOUT_PERIOD = (1000*60*10);
     private Timer payoutTimer;
 
     private Economy econ;
 
     public RPRoles(Economy econ){
-        playerRoleList = new ArrayList<>();
+        playerRoles = new HashMap<Player, RolePlayer>();
+        
         manager = Bukkit.getScoreboardManager();
         board = manager.getNewScoreboard();
 
@@ -30,23 +40,12 @@ public class RPRoles implements ActionListener {
         objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
         objective.setDisplayName("/ 20");
 
-        officerTeam = board.registerNewTeam("Officer");
-        officerTeam.setPrefix("[Officer] ");
-
-        loggerTeam = board.registerNewTeam("Logger");
-        loggerTeam.setPrefix("[Logger] ");
-
-        minerTeam = board.registerNewTeam("Miner");
-        minerTeam.setPrefix("[Miner] ");
-
-        entrepreneurTeam = board.registerNewTeam("Entrepreneur");
-        entrepreneurTeam.setPrefix("[Entre] ");
-
-        scientistTeam = board.registerNewTeam("Scientist");
-        scientistTeam.setPrefix("[Scientist] ");
-
-        criminalTeam = board.registerNewTeam("Criminal");
-        criminalTeam.setPrefix("[Criminal] ");
+        teams = new HashMap<ERole, Team>();
+        for(ERole role : ERole.values()){
+        	Team team = board.registerNewTeam(role.toString());
+        	team.setPrefix("["+role.toString()+"] ");
+        	teams.put(role, team);
+        }
 
         for (Player players : Bukkit.getOnlinePlayers()) {
             players.setScoreboard(board);
@@ -68,46 +67,32 @@ public class RPRoles implements ActionListener {
     }
 
     public String joinRole(Player player, String roleID) {
-        if (getRole(player) != null) {
+    	// Canonical name of role
+    	roleID = Character.toUpperCase(roleID.charAt(0)) + roleID.substring(1).toLowerCase();
+    	
+        if (playerRoles.containsKey(player)) {
             switchRole(player, roleID);
         }
 
-        switch (roleID.toUpperCase()) {
-            case "OFFICER":
-                playerRoleList.add(new RPWrapper(player, ERole.OFFICER));
-                officerTeam.addPlayer(player);
-                return "You joined the officer role!";
-            case "LOGGER":
-                playerRoleList.add(new RPWrapper(player, ERole.LOGGER));
-                loggerTeam.addPlayer(player);
-                return "You joined the logger role!";
-            case "MINER":
-                playerRoleList.add(new RPWrapper(player, ERole.MINER));
-                minerTeam.addPlayer(player);
-                return "You joined the miner role!";
-            case "ENTREPRENEUR":
-                playerRoleList.add(new RPWrapper(player, ERole.ENTREPRENEUR));
-                entrepreneurTeam.addPlayer(player);
-                return "You joined the entrepreneur role!";
-            case "SCIENTIST":
-                playerRoleList.add(new RPWrapper(player, ERole.SCIENTIST));
-                scientistTeam.addPlayer(player);
-                return "You joined the scientist role!";
-            case "CRIMINAL":
-                playerRoleList.add(new RPWrapper(player, ERole.CRIMINAL));
-                criminalTeam.addPlayer(player);
-                return "You joined the criminal role!";
+        try{
+        	ERole role = ERole.fromName(roleID);
+        	if(role == null){
+        		throw new Exception("Role " +roleID + " does not exist");
+        	}
+        	playerRoles.put(player, new RolePlayer(player, role));
+        	teams.get(role).addPlayer(player);
+        	return "You have joined the " + role.toString() + " role!";
+        } catch (Exception e){
+        	System.out.println(e.getMessage());
+        	return "The role you attempted to join does not exist!";
         }
-        return "The role you attempted to join does not exist!";
     }
 
     public ERole getRole(Player player) {
-        for (RPWrapper rp : playerRoleList) {
-            if (rp.getPlayer() == player) {
-                return rp.getRole();
-            }
-        }
-        return null;
+    	if(playerRoles.containsKey(player)){
+    		return playerRoles.get(player).getRole();
+    	}
+    	return ERole.CITIZEN;
     }
 
     //TODO: Add descriptions for all roles
@@ -121,75 +106,24 @@ public class RPRoles implements ActionListener {
     }
 
     public String leaveRole(Player player) {
-        for (RPWrapper rp : playerRoleList) {
-            if (rp.getPlayer() == player) {
-                removeFromTeam(rp);
-                playerRoleList.remove(rp);
-                return "You left your role!";
-            }
-        }
-        return "Unable to leave role... maybe you are not currently in one?";
+    	if(playerRoles.containsKey(player)){
+    		teams.get(playerRoles.get(player)).removePlayer(player);
+    		playerRoles.remove(player);
+    		return "You left your role!";
+    	}
+    	return "You do not have a role!";
     }
 
-    public void removeFromTeam(RPWrapper rp) {
-        switch (rp.getRole()) {
-            case OFFICER:
-                officerTeam.removePlayer(rp.getPlayer());
-                break;
-            case LOGGER:
-                loggerTeam.removePlayer(rp.getPlayer());
-                break;
-            case MINER:
-                minerTeam.removePlayer(rp.getPlayer());
-                break;
-            case ENTREPRENEUR:
-                entrepreneurTeam.removePlayer(rp.getPlayer());
-                break;
-            case SCIENTIST:
-                scientistTeam.removePlayer(rp.getPlayer());
-                break;
-            case CRIMINAL:
-                criminalTeam.removePlayer(rp.getPlayer());
-                break;
-        }
-    }
-
-    public void payOutSalary(RPWrapper rp) {
-        switch (rp.getRole()) {
-            case OFFICER:
-                econ.depositPlayer(rp.getPlayer(), 50.00);
-                rp.getPlayer().sendMessage("$50.00 has been deposited into your account.");
-                break;
-            case LOGGER:
-                econ.depositPlayer(rp.getPlayer(), 25.00);
-                rp.getPlayer().sendMessage("$25.00 has been deposited into your account.");
-                break;
-            case MINER:
-                econ.depositPlayer(rp.getPlayer(), 25.00);
-                rp.getPlayer().sendMessage("$25.00 has been deposited into your account.");
-                break;
-            case ENTREPRENEUR:
-                econ.depositPlayer(rp.getPlayer(), 125.00);
-                rp.getPlayer().sendMessage("$125.00 has been deposited into your account.");
-                break;
-            case SCIENTIST:
-                econ.depositPlayer(rp.getPlayer(), 75.00);
-                rp.getPlayer().sendMessage("$75.00 has been deposited into your account.");
-                break;
-            case CRIMINAL:
-                econ.depositPlayer(rp.getPlayer(), 15.00);
-                rp.getPlayer().sendMessage("$15.00 has been deposited into your account.");
-                break;
-        }
+    public void payOutSalary(RolePlayer rp) {
+    	econ.depositPlayer(rp.getPlayer(), rp.getRole().getSalary());
+    	rp.getPlayer().sendMessage("$"+rp.getRole()+" has been deposited into your account.");
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Bukkit.broadcastMessage("It's payday!");
-        if (playerRoleList != null) {
-            for (RPWrapper rp : playerRoleList) {
-                payOutSalary(rp);
-            }
+        for (RolePlayer rp : playerRoles.values()) {
+            payOutSalary(rp);
         }
     }
 }

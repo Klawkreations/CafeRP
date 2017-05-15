@@ -1,10 +1,8 @@
 package io.github.klawkreations.caferp;
 
-import io.github.klawkreations.caferp.rp.RPCommands;
-import io.github.klawkreations.caferp.rp.RPRoles;
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
+import java.util.logging.Logger;
+
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,7 +13,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.logging.Logger;
+import io.github.klawkreations.caferp.rp.RPCommands;
+import io.github.klawkreations.caferp.rp.RPRoles;
+import io.github.klawkreations.caferp.rp.roles.Guard;
+import io.github.klawkreations.caferp.rp.roles.RolePlayer;
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 
 public final class CafeRP extends JavaPlugin implements Listener {
     private RPRoles roleManager;
@@ -30,7 +34,7 @@ public final class CafeRP extends JavaPlugin implements Listener {
     public void onEnable() {
         getServer().getPluginManager().registerEvents(this, this);
 
-        if (!setupEconomy() ) {
+        if (false && !setupEconomy() ) {
             log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -107,7 +111,8 @@ public final class CafeRP extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
         if (sender instanceof Player) {
-            Player player = (Player) sender;
+        	Player player = (Player) sender;
+            RolePlayer rplayer = new RolePlayer(player, roleManager.getRole(player));
             if (cmd.getName().equalsIgnoreCase("rp")) {
                 if (args.length > 0) {
                     if (args[0].equalsIgnoreCase("list") && player.hasPermission("rp.list") && args.length == 1) {
@@ -120,36 +125,55 @@ public final class CafeRP extends JavaPlugin implements Listener {
                         sender.sendMessage(roleManager.switchRole(player, args[1]));
                         return true;
                     } else if (args[0].equalsIgnoreCase("leave") && player.hasPermission("rp.leave") && args.length == 1) {
-                        sender.sendMessage(roleManager.leaveRole(player));
+                        sender.sendMessage(roleManager.leaveRole(player.getPlayer()));
                         return true;
                     } else if (args[0].equalsIgnoreCase("cuff") && player.hasPermission("rp.cuff") && args.length == 2) {
-                        sender.sendMessage(rpCommands.cuff(player, args[1]));
+                    	Player other = getPlayerByName(args[1]);
+                        sender.sendMessage(Guard.cuff(rplayer, new RolePlayer(other, roleManager.getRole(other))));
                         return true;
                     } else if (args[0].equalsIgnoreCase("uncuff") && player.hasPermission("rp.uncuff") && args.length == 2) {
-                        sender.sendMessage(rpCommands.unCuff(player, args[1]));
+                    	Player other = getPlayerByName(args[1]);
+                    	sender.sendMessage(Guard.unCuff(rplayer, new RolePlayer(other, roleManager.getRole(other))));
                         return true;
                     } else if (args[0].equalsIgnoreCase("jail") && player.hasPermission("rp.jail") && args.length == 3) {
-                        sender.sendMessage(rpCommands.jailPlayer(player, args[1], args[2]));
+                        //sender.sendMessage(rpCommands.jailPlayer(player, args[1], args[2]));
                         return true;
                     } else if (args[0].equalsIgnoreCase("release") && player.hasPermission("rp.release") && args.length == 2) {
-                        sender.sendMessage(rpCommands.unjailPlayer(player, args[1]));
+                        //sender.sendMessage(rpCommands.unjailPlayer(player, args[1]));
                         return true;
                     } else if (args[0].equalsIgnoreCase("setjail") && player.hasPermission("rp.setjail") && args.length == 1) {
-                        sender.sendMessage(rpCommands.setJail(player));
+                        //sender.sendMessage(rpCommands.setJail(player));
                         return true;
                     } else if (args[0].equalsIgnoreCase("rmjail") && player.hasPermission("rp.rmjail") && args.length == 1) {
-                        sender.sendMessage(rpCommands.removeJail());
+                        //sender.sendMessage(rpCommands.removeJail());
                         return true;
                     }
                 }
-                //TODO: Improve this... it looks so unorganised.
-                sender.sendMessage("Possible commands are: /rp list, /rp join [role], /rp switch [role], /rp leave, " + "" +
-                        " /rp cuff [playername], /rp uncuff [playername], /rp jail [playername] [periodinseconds], " +
-                                "/rp release [playername], /rp setjail, /rp rmjail");
+                //TODO: Add colors
+                sender.sendMessage("Possible commands are:\n" +
+                					"/rp list\n"+
+                					"/rp join [role]\n" + 
+                					"/rp switch [role]\n" +
+                					"/rp leave\n" +
+                        			"/rp cuff [playername]\n" + 
+                					"/rp uncuff [playername]\n" + 
+                					"/rp jail [playername] [periodinseconds]\n" +
+                                	"/rp release [playername]\n" +
+                                	"/rp setjail\n" +
+                                	"/rp rmjail");
                 return true;
             }
             return false;
         }
         return false;
+    }
+    
+    public Player getPlayerByName(String playerName){
+        for (Player players : Bukkit.getOnlinePlayers()){
+            if (players.getName().equalsIgnoreCase(playerName)){
+                return players;
+            }
+        }
+        return null;
     }
 }
