@@ -3,22 +3,22 @@ package io.github.klawkreations.caferp.rp.roles;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import io.github.klawkreations.caferp.rp.ERole;
+import io.github.klawkreations.caferp.rp.Role;
 
 public class RolePlayer {
-	private ERole role;
+	private Role role;
 	private Player player;
 	
-	public RolePlayer(Player player, ERole role){
+	public RolePlayer(Player player, Role role){
 		this.role = role;
 		this.player = player;
 	}
 
-	public ERole getRole() {
+	public Role getRole() {
 		return role;
 	}
 
-	public void assignRole(ERole role){
+	public void assignRole(Role role){
         this.role = role;
     }
 
@@ -29,9 +29,17 @@ public class RolePlayer {
 	public Location getLocation() {
 		return player.getLocation();
 	}
+	
+	public boolean teleport(Location location){
+		return player.teleport(location);
+	}
 
 	public String getName() {
 		return player.getName();
+	}
+	
+	public boolean hasCommand(String command){
+		return role.hasCommand(command);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package io.github.klawkreations.caferp.rp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.Timer;
@@ -18,19 +19,19 @@ import io.github.klawkreations.caferp.rp.roles.RolePlayer;
 import net.milkbowl.vault.economy.Economy;
 
 public class RPRoles implements ActionListener {
+	private ArrayList<Role> roles;
     private HashMap<Player, RolePlayer> playerRoles;
-    private HashMap<ERole, Team> teams;
+    private HashMap<Role, Team> teams;
     private ScoreboardManager manager;
     private Scoreboard board;
-    //private Team officerTeam, loggerTeam, minerTeam, entrepreneurTeam, scientistTeam, criminalTeam;
-    
 
     private final int PAYOUT_PERIOD = (1000*60*10);
     private Timer payoutTimer;
 
     private Economy econ;
 
-    public RPRoles(Economy econ){
+    public RPRoles(Economy econ, ArrayList<Role> roles){
+    	this.roles = new ArrayList<Role>(roles);
         playerRoles = new HashMap<Player, RolePlayer>();
         
         manager = Bukkit.getScoreboardManager();
@@ -40,8 +41,8 @@ public class RPRoles implements ActionListener {
         objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
         objective.setDisplayName("/ 20");
 
-        teams = new HashMap<ERole, Team>();
-        for(ERole role : ERole.values()){
+        teams = new HashMap<Role, Team>();
+        for(Role role : roles){
         	Team team = board.registerNewTeam(role.toString());
         	team.setPrefix("["+role.toString()+"] ");
         	teams.put(role, team);
@@ -57,25 +58,20 @@ public class RPRoles implements ActionListener {
     }
 
     public String listRoles() {
-        ERole[] roles = ERole.values();
         String titles = "Available roles: \n";
-
-        for (ERole role : roles){
+        for (Role role : roles){
             titles += role.toString() + " \n";
         }
         return titles;
     }
 
-    public String joinRole(Player player, String roleID) {
-    	// Canonical name of role
-    	roleID = Character.toUpperCase(roleID.charAt(0)) + roleID.substring(1).toLowerCase();
-    	
+    public String joinRole(Player player, String roleID) {    	
         if (playerRoles.containsKey(player)) {
             switchRole(player, roleID);
         }
 
         try{
-        	ERole role = ERole.fromName(roleID);
+        	Role role = findRoleByName(roleID);
         	if(role == null){
         		throw new Exception("Role " +roleID + " does not exist");
         	}
@@ -88,11 +84,11 @@ public class RPRoles implements ActionListener {
         }
     }
 
-    public ERole getRole(Player player) {
+    public Role getRole(Player player) {
     	if(playerRoles.containsKey(player)){
     		return playerRoles.get(player).getRole();
     	}
-    	return ERole.CITIZEN;
+    	return null;
     }
 
     //TODO: Add descriptions for all roles
@@ -107,7 +103,7 @@ public class RPRoles implements ActionListener {
 
     public String leaveRole(Player player) {
     	if(playerRoles.containsKey(player)){
-    		teams.get(playerRoles.get(player)).removePlayer(player);
+    		teams.get(playerRoles.get(player).getRole()).removePlayer(player);
     		playerRoles.remove(player);
     		return "You left your role!";
     	}
@@ -126,4 +122,18 @@ public class RPRoles implements ActionListener {
             payOutSalary(rp);
         }
     }
+
+	public void disable() {
+		payoutTimer.stop();		
+	}
+	
+	public Role findRoleByName(String name){
+		name = Character.toUpperCase(name.charAt(0)) + name.substring(1).toLowerCase();
+		for(Role role : roles){
+			if(role.getTitle().equals(name)){
+				return role;
+			}
+		}
+		return null;
+	}
 }
