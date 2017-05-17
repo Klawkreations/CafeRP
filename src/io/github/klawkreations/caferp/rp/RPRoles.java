@@ -15,7 +15,6 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
-import io.github.klawkreations.caferp.rp.roles.RolePlayer;
 import net.milkbowl.vault.economy.Economy;
 
 public class RPRoles implements ActionListener {

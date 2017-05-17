@@ -8,9 +8,7 @@ public class Role {
 	private double salary;
 	private String title;
 	private HashSet<String> commands;
-	
-	//TODO Add salary, etc.
-	
+		
 	public Role(double salary, String title, List<String> commands){
 		this.salary = salary;
 		this.title = title;

@@ -20,10 +20,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import io.github.klawkreations.caferp.rp.RPCommands;
 import io.github.klawkreations.caferp.rp.RPRoles;
 import io.github.klawkreations.caferp.rp.Role;
-import io.github.klawkreations.caferp.rp.roles.RolePlayer;
-import net.milkbowl.vault.chat.Chat;
+import io.github.klawkreations.caferp.rp.RPCommand;
+import io.github.klawkreations.caferp.rp.RolePlayer;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 
 public final class CafeRP extends JavaPlugin implements Listener {
 	private RPRoles roleManager;
@@ -31,14 +30,14 @@ public final class CafeRP extends JavaPlugin implements Listener {
 
 	private static final Logger log = Logger.getLogger("Minecraft");
 	private static Economy econ = null;
-	private static Permission perms = null;
-	private static Chat chat = null;
+	//private static Permission perms = null;
+	//private static Chat chat = null;
 
 	@Override
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
 
-		if (false && !setupEconomy()) {
+		if (!setupEconomy()) {
 			log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
 			getServer().getPluginManager().disablePlugin(this);
 			return;
@@ -46,7 +45,7 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		// setupPermissions();
 		// setupChat();
 
-		getDataFolder().mkdir(); // Makes the resouece folder
+		getDataFolder().mkdir(); // Makes the resource folder
 
 		ArrayList<Role> roles = new ArrayList<Role>();
 		loadRoles(roles);
@@ -55,7 +54,6 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		rpCommands = new RPCommands(roleManager, econ);
 
 		// getLogger().info("onEnable has been invoked!");
-
 	}
 
 	@Override
@@ -147,76 +145,18 @@ public final class CafeRP extends JavaPlugin implements Listener {
 	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (cmd.getName().equalsIgnoreCase("rp")) {
-				if (args.length > 0) {
-					if (args[0].equalsIgnoreCase("list") && player.hasPermission("rp.list") && args.length == 1) {
-						sender.sendMessage(roleManager.listRoles());
-						return true;
-					} else if (args[0].equalsIgnoreCase("join") && player.hasPermission("rp.join")
-							&& args.length == 2) {
-						sender.sendMessage(roleManager.joinRole(player, args[1]));
-						return true;
-					} else if (args[0].equalsIgnoreCase("switch") && player.hasPermission("rp.switch")
-							&& args.length == 2) {
-						sender.sendMessage(roleManager.switchRole(player, args[1]));
-						return true;
-					} else if (args[0].equalsIgnoreCase("leave") && player.hasPermission("rp.leave")
-							&& args.length == 1) {
-						sender.sendMessage(roleManager.leaveRole(player.getPlayer()));
-						return true;
-					} else if (args[0].equalsIgnoreCase("cuff") && player.hasPermission("rp.cuff")
-							&& args.length == 2) {
-						RolePlayer rplayer = new RolePlayer(player, roleManager.getRole(player));
-						Player other = getPlayerByName(args[1]);
-						RolePlayer rother = new RolePlayer(other, roleManager.getRole(other));
-						sender.sendMessage(rpCommands.cuff(rplayer, rother));
-						return true;
-					} else if (args[0].equalsIgnoreCase("uncuff") && player.hasPermission("rp.uncuff")
-							&& args.length == 2) {
-						RolePlayer rplayer = new RolePlayer(player, roleManager.getRole(player));
-						Player other = getPlayerByName(args[1]);
-						RolePlayer rother = new RolePlayer(other, roleManager.getRole(other));
-						sender.sendMessage(rpCommands.unCuff(rplayer, rother));
-						return true;
-					} else if (args[0].equalsIgnoreCase("jail") && player.hasPermission("rp.jail")
-							&& args.length == 3) {
-						RolePlayer rplayer = new RolePlayer(player, roleManager.getRole(player));
-						Player other = getPlayerByName(args[1]);
-						RolePlayer rother = new RolePlayer(other, roleManager.getRole(other));
-						sender.sendMessage(rpCommands.jailPlayer(rplayer, rother, args[2]));
-						return true;
-					} else if (args[0].equalsIgnoreCase("release") && player.hasPermission("rp.release")
-							&& args.length == 2) {
-						RolePlayer rplayer = new RolePlayer(player, roleManager.getRole(player));
-						Player other = getPlayerByName(args[1]);
-						RolePlayer rother = new RolePlayer(other, roleManager.getRole(other));
-						sender.sendMessage(rpCommands.unjailPlayer(rplayer, rother));
-						return true;
-					} else if (args[0].equalsIgnoreCase("setjail") && player.hasPermission("rp.setjail")
-							&& args.length == 1) {
-						sender.sendMessage(rpCommands.setJail(player));
-						return true;
-					} else if (args[0].equalsIgnoreCase("rmjail") && player.hasPermission("rp.rmjail")
-							&& args.length == 1) {
-						sender.sendMessage(rpCommands.removeJail());
-						return true;
-					}
-				}
-				// TODO: Add colors
-				sender.sendMessage("Possible commands are:\n" + "/rp list\n" + "/rp join [role]\n"
-						+ "/rp switch [role]\n" + "/rp leave\n" + "/rp cuff [playername]\n"
-						+ "/rp uncuff [playername]\n" + "/rp jail [playername] [periodinseconds]\n"
-						+ "/rp release [playername]\n" + "/rp setjail\n" + "/rp rmjail");
+				sender.sendMessage(rpCommands.command(player, args));
 				return true;
 			}
-			return false;
 		}
 		return false;
 	}
 
-	public Player getPlayerByName(String playerName) {
+	public static Player getPlayerByName(String playerName) {
 		for (Player players : Bukkit.getOnlinePlayers()) {
 			if (players.getName().equalsIgnoreCase(playerName)) {
 				return players;

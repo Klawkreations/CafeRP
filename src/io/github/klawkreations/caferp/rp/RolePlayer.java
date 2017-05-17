@@ -1,9 +1,7 @@
-package io.github.klawkreations.caferp.rp.roles;
+package io.github.klawkreations.caferp.rp;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import io.github.klawkreations.caferp.rp.Role;
 
 public class RolePlayer {
 	private Role role;
