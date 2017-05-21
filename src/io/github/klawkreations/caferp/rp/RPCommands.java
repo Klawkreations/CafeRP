@@ -65,7 +65,12 @@ public class RPCommands {
 				return help;
 			}
 		});
-		
+		commands.put("payday", new RPCommand("rp.payday", 1, "") {
+			public String run(Player sender, String args[]) {
+				check(sender, args);
+				return roleManager.timeToPayday();
+			}
+		});
 		// OFFICER COMMANDS
 		commands.put("cuff", new RPCommand("rp.cuff", 2, "") {
 			public String run(Player sender, String args[]) {

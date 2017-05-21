@@ -17,15 +17,15 @@ import org.bukkit.scoreboard.Team;
 
 import net.milkbowl.vault.economy.Economy;
 
-public class RPRoles implements ActionListener {
+public class RPRoles {
 	private ArrayList<Role> roles;
 	private HashMap<Player, RolePlayer> playerRoles;
 	private HashMap<Role, Team> teams;
 	private ScoreboardManager manager;
 	private Scoreboard board;
 
-	private final int PAYOUT_PERIOD = (1000 * 60 * 10);
-	private Timer payoutTimer;
+	private final int PAYOUT_PERIOD = (60 * 10);
+	private RPTimer payoutTimer;
 
 	private Economy econ;
 
@@ -52,7 +52,16 @@ public class RPRoles implements ActionListener {
 		}
 
 		this.econ = econ;
-		payoutTimer = new Timer(PAYOUT_PERIOD, this);
+		
+		payoutTimer = new RPTimer(PAYOUT_PERIOD, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Bukkit.broadcastMessage("It's payday!");
+				for (RolePlayer rp : playerRoles.values()) {
+					payOutSalary(rp);
+				}
+			}
+		});
 		payoutTimer.start();
 	}
 
@@ -117,14 +126,6 @@ public class RPRoles implements ActionListener {
 		rp.getPlayer().sendMessage("$" + rp.getRole() + " has been deposited into your account.");
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Bukkit.broadcastMessage("It's payday!");
-		for (RolePlayer rp : playerRoles.values()) {
-			payOutSalary(rp);
-		}
-	}
-
 	public void disable() {
 		payoutTimer.stop();
 	}
@@ -138,4 +139,8 @@ public class RPRoles implements ActionListener {
 		}
 		return null;
 	}	
+	
+	public String timeToPayday(){
+		return payoutTimer.timeLeft();
+	}
 }
