@@ -14,7 +14,7 @@ public class RPCommand  {
 	}
 	
 	public boolean check(Player p, String args[]){
-		return p.hasPermission(permission) && args.length == numArgs;
+		return p.getPlayer().hasPermission(permission)  && args.length == numArgs;
 	}
 	
 	public String run(Player sender, String args[]){

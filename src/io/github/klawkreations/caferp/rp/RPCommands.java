@@ -65,6 +65,7 @@ public class RPCommands {
 				return help;
 			}
 		});
+		
 		// OFFICER COMMANDS
 		commands.put("cuff", new RPCommand("rp.cuff", 2, "") {
 			public String run(Player sender, String args[]) {
@@ -153,14 +154,17 @@ public class RPCommands {
 		// CASTER COMMANDS
 		commands.put("leap", new RPCommand("rp.leap", 2, "") {
 			public String run(Player sender, String args[]) {
+				Role role = roleManager.getRole(sender);
+				if(role == null || !role.hasCommand("leap")){
+					return "You cannot leap!";
+				}
 				int multiplier = 0;
 				try {
 					multiplier = Integer.parseInt(args[1]);
 				} catch (Exception e) {
 					return args[1] + " is not a valid scalar!";
 				}
-				Player player = sender.getPlayer();
-				sender.getPlayer().setVelocity(player.getLocation().getDirection().multiply(multiplier));
+				sender.setVelocity(sender.getLocation().getDirection().multiply(multiplier));
 				return "You leap forward!";
 			}
 		});
@@ -180,6 +184,7 @@ public class RPCommands {
 				return "Removed the current jail!";
 			}
 		});
+		
 	}
 
 	public String command(Player sender, String args[]) {

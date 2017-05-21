@@ -30,30 +30,24 @@ public final class CafeRP extends JavaPlugin implements Listener {
 
 	private static final Logger log = Logger.getLogger("Minecraft");
 	private static Economy econ = null;
-	//private static Permission perms = null;
-	//private static Chat chat = null;
 
 	@Override
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
 
-		if (!setupEconomy()) {
+		if (false && !setupEconomy()) {
 			log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
-		// setupPermissions();
-		// setupChat();
 
-		getDataFolder().mkdir(); // Makes the resource folder
+		getDataFolder().mkdir();
 
 		ArrayList<Role> roles = new ArrayList<Role>();
 		loadRoles(roles);
-		getLogger().info("Created roles " + roles.toString());
+		log("Created roles " + roles.toString());
 		roleManager = new RPRoles(econ, roles);
 		rpCommands = new RPCommands(roleManager, econ);
-
-		// getLogger().info("onEnable has been invoked!");
 	}
 
 	@Override
@@ -77,13 +71,13 @@ public final class CafeRP extends JavaPlugin implements Listener {
 			YamlConfiguration rolesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "roles.yml"));
 			HashSet<String> roleNames = new HashSet<String>(rolesConfig.getKeys(false));
 			for (String key : roleNames) {
-				
 				String title = rolesConfig.getString(key + ".title",
 						Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
+				String desc = rolesConfig.getString(key + ".description", "");
 				double salary = rolesConfig.getDouble(key + ".salary", 0);
 				ArrayList<String> commands = (ArrayList<String>) rolesConfig.getList(key + ".commands",
 						new ArrayList<String>());
-				roles.add(new Role(salary, title, commands));
+				roles.add(new Role(salary, title, desc, commands));
 			}
 
 			return true;
@@ -106,31 +100,9 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		return econ != null;
 	}
 
-	// private boolean setupChat() {
-	// RegisteredServiceProvider<Chat> rsp =
-	// getServer().getServicesManager().getRegistration(Chat.class);
-	// chat = rsp.getProvider();
-	// return chat != null;
-	// }
-
-	// private boolean setupPermissions() {
-	// RegisteredServiceProvider<Permission> rsp =
-	// getServer().getServicesManager().getRegistration(Permission.class);
-	// perms = rsp.getProvider();
-	// return perms != null;
-	// }
-
 	public static Economy getEcononomy() {
 		return econ;
 	}
-
-	// public static Permission getPermissions() {
-	// return perms;
-	// }
-	//
-	// public static Chat getChat() {
-	// return chat;
-	// }
 
 	/**
 	 * TODO: Add more cases for the messages commands send back to the player
@@ -145,10 +117,9 @@ public final class CafeRP extends JavaPlugin implements Listener {
 	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
-		if (sender instanceof Player) {
-			Player player = (Player) sender;
-			if (cmd.getName().equalsIgnoreCase("rp")) {
+		if (cmd.getName().equalsIgnoreCase("rp") && args.length > 0) {
+			if (sender instanceof Player) {
+				Player player = (Player) sender;
 				sender.sendMessage(rpCommands.command(player, args));
 				return true;
 			}
@@ -163,5 +134,9 @@ public final class CafeRP extends JavaPlugin implements Listener {
 			}
 		}
 		return null;
+	}
+
+	public static void log(String s) {
+		log.info(s);
 	}
 }

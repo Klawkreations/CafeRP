@@ -4,16 +4,23 @@ import java.util.HashSet;
 import java.util.List;
 
 public class Role {
-
+	public static Role defaultRole = null;
+	
 	private double salary;
 	private String title;
+	private String description;
 	private HashSet<String> commands;
 		
-	public Role(double salary, String title, List<String> commands){
+	public Role(double salary, String title, String desc, List<String> commands){
 		this.salary = salary;
 		this.title = title;
+		this.description = desc;
 		
 		this.commands = new HashSet<String>(commands);
+		
+		if( title.equalsIgnoreCase("default")){
+			defaultRole = this;
+		}
 	}
 	
 	public String getTitle() {
@@ -22,6 +29,10 @@ public class Role {
 
 	public double getSalary() {
 		return salary;
+	}
+	
+	public String getDescription(){
+		return description;
 	}
 	
 	public boolean hasCommand(String command){
