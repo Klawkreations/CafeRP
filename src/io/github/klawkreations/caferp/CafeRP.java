@@ -43,10 +43,12 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		getDataFolder().mkdir();
 
 		ArrayList<Role> roles = new ArrayList<Role>();
-		loadRoles(roles);
+		ArrayList<RPCommandAlias> aliases = loadRoles(roles); 
 		log("Created roles " + roles.toString());
+		
 		roleManager = new RPRoles(econ, roles);
-		rpCommands = new RPCommands(roleManager, econ);
+		rpCommands = new RPCommands(roleManager, econ, aliases);
+		
 	}
 
 	@Override
@@ -65,40 +67,59 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		roleManager.leaveRole(event.getPlayer());
 	}
 
-	private boolean loadRoles(ArrayList<Role> roles) {
+	private ArrayList<RPCommandAlias> loadRoles(ArrayList<Role> roles) {
+		ArrayList<RPCommandAlias> aliases = new ArrayList<RPCommandAlias>();
 		try {
 			YamlConfiguration rolesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "roles.yml"));
 			HashSet<String> roleNames = new HashSet<String>(rolesConfig.getKeys(false));
 			for (String key : roleNames) {
 				if (key.equals("default")) {
-					String title = rolesConfig.getString(key + ".title",
-							Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
-					String desc = rolesConfig.getString(key + ".description", "");
-					double salary = rolesConfig.getDouble(key + ".salary", 0);
-					ArrayList<String> commands = (ArrayList<String>) rolesConfig.getList(key + ".commands",
-							new ArrayList<String>());
-					Role.defaultRole = new Role(salary, title, desc, commands);
+					Role.defaultRole = setupRole(rolesConfig, key, aliases);
 				} else {
-					String title = rolesConfig.getString(key + ".title",
-							Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
-					String desc = rolesConfig.getString(key + ".description", "");
-					double salary = rolesConfig.getDouble(key + ".salary", 0);
-					ArrayList<String> commands = (ArrayList<String>) rolesConfig.getList(key + ".commands",
-							new ArrayList<String>());
-					roles.add(new Role(salary, title, desc, commands));
+					roles.add(setupRole(rolesConfig, key, aliases));
 				}
 			}
-			if(Role.defaultRole == null){
-				String[] defaults = {"list", "join", "switch", "leave", "help", "payday"};
+			if (Role.defaultRole == null) {
+				String[] defaults = { "list", "join", "switch", "leave", "help", "payday" };
 				ArrayList<String> commands = new ArrayList<String>(Arrays.asList(defaults));
 				Role.defaultRole = new Role(0, "Citizen", "", commands);
 			}
-			return true;
 		} catch (Exception e) {
 			System.out.println("Could not load the config!");
 		}
 
-		return false;
+		return aliases;
+	}
+
+	private Role setupRole(YamlConfiguration config, String key, ArrayList<RPCommandAlias> aliases) {
+		String title = config.getString(key + ".title",
+				Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
+		String desc = config.getString(key + ".description", "");
+		double salary = config.getDouble(key + ".salary", 0);
+		ArrayList<String> commands = new ArrayList<String>();
+		for (Object item : config.getList(key + ".commands", new ArrayList<String>())) {
+			if (item instanceof String) {
+				String command = (String) item;
+				if (command.contains("-")) { // If it is an alias
+					String[] split = command.split("-", 3);
+					if(split.length == 3){
+						String commandName = split[0].trim();
+						split[1] = split[1].trim();
+						String commandToCall = split[1].split(" ")[0].trim();
+						String[] args = split[1].split(" ");
+						for(String arg : args){
+							arg = arg.trim();
+						}
+						String description = split[2].trim();
+						aliases.add(new RPCommandAlias(commandName, commandToCall, args, description));
+						commands.add(commandName);
+					}
+				} else {
+					commands.add(command);
+				}
+			}
+		}
+		return new Role(salary, title, desc, commands);
 	}
 
 	private boolean setupEconomy() {

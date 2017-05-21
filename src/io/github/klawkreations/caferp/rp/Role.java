@@ -3,6 +3,8 @@ package io.github.klawkreations.caferp.rp;
 import java.util.HashSet;
 import java.util.List;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class Role {
 	public static Role defaultRole = null;
 
@@ -42,7 +44,7 @@ public class Role {
 	public String getCommands() {
 		String thisCommands = "";
 		for (String command : commands) {
-			thisCommands += command.toString() + "\n";
+			thisCommands += command + "\n";
 		}
 		if(!this.equals(defaultRole)){
 			thisCommands = defaultRole.getCommands() + thisCommands;

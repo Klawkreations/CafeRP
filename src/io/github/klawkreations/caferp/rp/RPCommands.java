@@ -1,5 +1,6 @@
 package io.github.klawkreations.caferp.rp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import io.github.klawkreations.caferp.CafeRP;
+import io.github.klawkreations.caferp.RPCommandAlias;
 import net.milkbowl.vault.economy.Economy;
 
 public class RPCommands {
@@ -19,7 +21,7 @@ public class RPCommands {
 
 	private Economy econ;
 
-	public RPCommands(RPRoles playerRoles, Economy econ) {
+	public RPCommands(RPRoles playerRoles, Economy econ, ArrayList<RPCommandAlias> aliases) {
 		previousLocationOfJailed = new HashMap<>();
 
 		jail = null;
@@ -180,6 +182,19 @@ public class RPCommands {
 			}
 		});
 
+		
+		// Add aliases that were generated in the roles config as commands
+		for(RPCommandAlias alias : aliases){
+			if(commands.containsKey(alias.getCommandToCall())){
+				String permissions = commands.get(alias.getCommandToCall()).getPermission();
+				add(new RPCommand(alias.getName(), permissions, 1, alias.getDescription()){
+					public String run(RolePlayer sender, String args[]) {
+						args = alias.getArgs();
+						return commands.get(alias.getCommandToCall()).call(sender, args);
+					}
+				});
+			}
+		}
 	}
 
 	public RPCommand get(String name) {

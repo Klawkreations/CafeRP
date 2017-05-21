@@ -44,6 +44,10 @@ public class RPCommand {
 	public String getName() {
 		return name;
 	}
+	
+	public String getPermission(){
+		return permission;
+	}
 
 	@Override
 	public String toString() {
