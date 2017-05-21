@@ -117,17 +117,6 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		return econ;
 	}
 
-	/**
-	 * TODO: Add more cases for the messages commands send back to the player
-	 * i.e. if they typed the wrong name of a player! TODO: Think of a better
-	 * way to implement the null checks -.-
-	 * 
-	 * @param sender
-	 * @param cmd
-	 * @param label
-	 * @param args
-	 * @return
-	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("rp") && args.length > 0) {

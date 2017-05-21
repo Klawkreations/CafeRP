@@ -5,8 +5,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.Timer;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -85,7 +83,7 @@ public class RPRoles {
 			}
 			playerRoles.put(player, new RolePlayer(player, role));
 			teams.get(role).addPlayer(player);
-			return "You have joined the " + role.toString() + " role!";
+			return "You have joined the " + role.getTitle() + " role!";
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			return "The role you attempted to join does not exist!";

@@ -144,6 +144,25 @@ public class RPCommands {
 				return "You leap forward!";
 			}
 		});
+		add(new RPCommand("effect", "rp.effect", 4, "") {
+			public String run(RolePlayer sender, String args[]){
+				int periodInt = 0;
+				try {
+					periodInt = Integer.parseInt(args[2])*20;
+				} catch (Exception e) {
+					return args[2] + " is not a valid number!";
+				}				
+				int strengthInt = 0;
+				try {
+					strengthInt = Integer.parseInt(args[3])-1;
+				} catch (Exception e) {
+					return args[3] + " is not a valid number!";
+				}
+				PotionEffectType effect = PotionEffectType.getByName(args[1]);
+				sender.getPlayer().addPotionEffect(new PotionEffect(effect, periodInt, strengthInt));
+				return "Applied effect";
+			}
+		});
 		// ADMIN COMMANDS
 		add(new RPCommand("setjail", "rp.setjail", 1, "") {
 			public String run(RolePlayer sender, String args[]) {
