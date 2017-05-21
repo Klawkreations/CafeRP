@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.logging.Logger;
+import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -20,8 +21,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import io.github.klawkreations.caferp.rp.RPCommands;
 import io.github.klawkreations.caferp.rp.RPRoles;
 import io.github.klawkreations.caferp.rp.Role;
-import io.github.klawkreations.caferp.rp.RPCommand;
-import io.github.klawkreations.caferp.rp.RolePlayer;
 import net.milkbowl.vault.economy.Economy;
 
 public final class CafeRP extends JavaPlugin implements Listener {
@@ -71,15 +70,29 @@ public final class CafeRP extends JavaPlugin implements Listener {
 			YamlConfiguration rolesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "roles.yml"));
 			HashSet<String> roleNames = new HashSet<String>(rolesConfig.getKeys(false));
 			for (String key : roleNames) {
-				String title = rolesConfig.getString(key + ".title",
-						Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
-				String desc = rolesConfig.getString(key + ".description", "");
-				double salary = rolesConfig.getDouble(key + ".salary", 0);
-				ArrayList<String> commands = (ArrayList<String>) rolesConfig.getList(key + ".commands",
-						new ArrayList<String>());
-				roles.add(new Role(salary, title, desc, commands));
+				if (key.equals("default")) {
+					String title = rolesConfig.getString(key + ".title",
+							Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
+					String desc = rolesConfig.getString(key + ".description", "");
+					double salary = rolesConfig.getDouble(key + ".salary", 0);
+					ArrayList<String> commands = (ArrayList<String>) rolesConfig.getList(key + ".commands",
+							new ArrayList<String>());
+					Role.defaultRole = new Role(salary, title, desc, commands);
+				} else {
+					String title = rolesConfig.getString(key + ".title",
+							Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
+					String desc = rolesConfig.getString(key + ".description", "");
+					double salary = rolesConfig.getDouble(key + ".salary", 0);
+					ArrayList<String> commands = (ArrayList<String>) rolesConfig.getList(key + ".commands",
+							new ArrayList<String>());
+					roles.add(new Role(salary, title, desc, commands));
+				}
 			}
-
+			if(Role.defaultRole == null){
+				String[] defaults = {"list", "join", "switch", "leave", "help", "payday"};
+				ArrayList<String> commands = new ArrayList<String>(Arrays.asList(defaults));
+				Role.defaultRole = new Role(0, "Citizen", "", commands);
+			}
 			return true;
 		} catch (Exception e) {
 			System.out.println("Could not load the config!");

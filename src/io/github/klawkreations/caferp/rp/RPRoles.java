@@ -42,8 +42,8 @@ public class RPRoles {
 
 		teams = new HashMap<Role, Team>();
 		for (Role role : roles) {
-			Team team = board.registerNewTeam(role.toString());
-			team.setPrefix("[" + role.toString() + "] ");
+			Team team = board.registerNewTeam(role.getTitle());
+			team.setPrefix("[" + role.getTitle() + "] ");
 			teams.put(role, team);
 		}
 
@@ -66,13 +66,9 @@ public class RPRoles {
 	}
 
 	public String listRoles() {
-		String titles = "Available roles: \n";
+		String titles = "Available roles:\n";
 		for (Role role : roles) {
-			String description = role.getDescription();
-			if(!description.isEmpty()){
-				description = " - " + description;
-			}
-			titles += role.toString() + description + " \n";
+			titles += role.toString() + "\n";
 		}
 		return titles;
 	}
@@ -105,6 +101,10 @@ public class RPRoles {
 
 	public String getRoleDescription(String role) {
 		return getRoleByName(role).getDescription();
+	}
+	
+	public RolePlayer getRolePlayer(Player p){
+		return new RolePlayer(p, getRole(p));
 	}
 
 	public String switchRole(Player player, String roleID) {

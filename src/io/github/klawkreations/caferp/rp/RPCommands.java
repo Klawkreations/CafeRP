@@ -2,14 +2,11 @@ package io.github.klawkreations.caferp.rp;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
 import io.github.klawkreations.caferp.CafeRP;
 import net.milkbowl.vault.economy.Economy;
@@ -31,55 +28,42 @@ public class RPCommands {
 		this.roleManager = playerRoles;
 
 		commands = new HashMap<String, RPCommand>();
-		commands.put("list", new RPCommand("rp.list", 1, "Lists all current roles") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
+		add(new RPCommand("list", "rp.list", 1, "Lists all current roles") {
+			public String run(RolePlayer sender, String args[]) {
 				return roleManager.listRoles();
 			}
 		});
-		commands.put("join", new RPCommand("rp.join", 2, "Joins a role") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
-				return roleManager.joinRole(sender, args[1]);
+		add(new RPCommand("join", "rp.join", 2, "Joins a role") {
+			public String run(RolePlayer sender, String args[]) {
+				return roleManager.joinRole(sender.getPlayer(), args[1]);
 			}
 		});
-		commands.put("switch", new RPCommand("rp.switch", 2, "Switches roles") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
-				return roleManager.switchRole(sender, args[1]);
+		add(new RPCommand("switch", "rp.switch", 2, "Switches roles") {
+			public String run(RolePlayer sender, String args[]) {
+				return roleManager.switchRole(sender.getPlayer(), args[1]);
 			}
 		});
-		commands.put("leave", new RPCommand("rp.leave", 1, "Leaves your current role") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
+		add(new RPCommand("leave", "rp.leave", 1, "Leaves your current role") {
+			public String run(RolePlayer sender, String args[]) {
 				return roleManager.leaveRole(sender.getPlayer());
 			}
 		});
-		commands.put("help", new RPCommand("rp.help", 1, "") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
-				String help = "";
-				for(Entry<String, RPCommand> entry : commands.entrySet()){
-					help += entry.getKey() + ": " + entry.getValue().toString() + "\n";
-				}
-				return help;
+		add(new RPCommand("help", "rp.help", 1, "") {
+			public String run(RolePlayer sender, String args[]) {
+				return sender.getRole().getCommands();
 			}
 		});
-		commands.put("payday", new RPCommand("rp.payday", 1, "") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
+		add(new RPCommand("payday", "rp.payday", 1, "") {
+			public String run(RolePlayer sender, String args[]) {
 				return roleManager.timeToPayday();
 			}
 		});
 		// OFFICER COMMANDS
-		commands.put("cuff", new RPCommand("rp.cuff", 2, "") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
-				RolePlayer instigator = new RolePlayer(sender, roleManager.getRole(sender));
-				Player other = CafeRP.getPlayerByName(args[1]);
-				RolePlayer target = new RolePlayer(other, roleManager.getRole(other));
+		add(new RPCommand("cuff", "rp.cuff", 2, "") {
+			public String run(RolePlayer sender, String args[]) {
+				RolePlayer target = roleManager.getRolePlayer(CafeRP.getPlayerByName(args[1]));
 
-				if (instigator.getLocation().distance(target.getLocation()) < 5.00 && instigator.hasCommand("cuff")) {
+				if (sender.getLocation().distance(target.getLocation()) < 5.00) {
 					if (target.getPlayer() == null) {
 						return "Unable to cuff " + target.getName();
 					} else {
@@ -90,14 +74,11 @@ public class RPCommands {
 				return "Unable to cuff " + target.getName() + "!";
 			}
 		});
-		commands.put("uncuff", new RPCommand("rp.uncuff", 2, "") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
-				RolePlayer instigator = new RolePlayer(sender, roleManager.getRole(sender));
-				Player other = CafeRP.getPlayerByName(args[1]);
-				RolePlayer target = new RolePlayer(other, roleManager.getRole(other));
+		add(new RPCommand("uncuff", "rp.uncuff", 2, "") {
+			public String run(RolePlayer sender, String args[]) {
+				RolePlayer target = roleManager.getRolePlayer(CafeRP.getPlayerByName(args[1]));
 
-				if (instigator.getLocation().distance(target.getLocation()) < 5.00 && instigator.hasCommand("uncuff")) {
+				if (sender.getLocation().distance(target.getLocation()) < 5.00) {
 					if (target.getPlayer() == null) {
 						return "Unable to uncuff targeted player as they may not exist";
 					} else {
@@ -108,12 +89,9 @@ public class RPCommands {
 				return "Unable to uncuff " + target.getName() + "!";
 			}
 		});
-		commands.put("jail", new RPCommand("rp.jail", 3, "") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
-				RolePlayer instigator = new RolePlayer(sender, roleManager.getRole(sender));
-				Player other = CafeRP.getPlayerByName(args[1]);
-				RolePlayer target = new RolePlayer(other, roleManager.getRole(other));
+		add(new RPCommand("jail", "rp.jail", 3, "") {
+			public String run(RolePlayer sender, String args[]) {
+				RolePlayer target = roleManager.getRolePlayer(CafeRP.getPlayerByName(args[1]));
 
 				int periodInt = 0;
 				try {
@@ -128,7 +106,7 @@ public class RPCommands {
 					return "Unable to jail " + target.getName() + " , period must be shorter than 600 seconds!";
 				}
 
-				if (instigator.getLocation().distance(target.getLocation()) < 5.00 && instigator.hasCommand("jail")
+				if (sender.getLocation().distance(target.getLocation()) < 5.00
 						&& previousLocationOfJailed.containsKey(target)) {
 
 					previousLocationOfJailed.put(target, target.getLocation());
@@ -139,14 +117,11 @@ public class RPCommands {
 				return "Unable to send " + target.getName() + " to jail!";
 			}
 		});
-		commands.put("release", new RPCommand("rp.release", 2, "") {
-			public String run(Player sender, String args[]) {
-				check(sender, args);
-				RolePlayer instigator = new RolePlayer(sender, roleManager.getRole(sender));
-				Player other = CafeRP.getPlayerByName(args[1]);
-				RolePlayer target = new RolePlayer(other, roleManager.getRole(other));
-				
-				if (previousLocationOfJailed.containsKey(target) && instigator.hasCommand("unjail")) {
+		add(new RPCommand("release", "rp.release", 2, "") {
+			public String run(RolePlayer sender, String args[]) {
+				RolePlayer target = roleManager.getRolePlayer(CafeRP.getPlayerByName(args[1]));
+
+				if (previousLocationOfJailed.containsKey(target)) {
 					if (previousLocationOfJailed.containsKey(target)) {
 						target.teleport(previousLocationOfJailed.get(target));
 						previousLocationOfJailed.remove(target);
@@ -157,25 +132,21 @@ public class RPCommands {
 			}
 		});
 		// CASTER COMMANDS
-		commands.put("leap", new RPCommand("rp.leap", 2, "") {
-			public String run(Player sender, String args[]) {
-				Role role = roleManager.getRole(sender);
-				if(role == null || !role.hasCommand("leap")){
-					return "You cannot leap!";
-				}
+		add(new RPCommand("leap", "rp.leap", 2, "") {
+			public String run(RolePlayer sender, String args[]) {
 				int multiplier = 0;
 				try {
 					multiplier = Integer.parseInt(args[1]);
 				} catch (Exception e) {
 					return args[1] + " is not a valid scalar!";
 				}
-				sender.setVelocity(sender.getLocation().getDirection().multiply(multiplier));
+				sender.getPlayer().setVelocity(sender.getLocation().getDirection().multiply(multiplier));
 				return "You leap forward!";
 			}
 		});
 		// ADMIN COMMANDS
-		commands.put("setjail", new RPCommand("rp.setjail", 1, "") {
-			public String run(Player sender, String args[]) {
+		add(new RPCommand("setjail", "rp.setjail", 1, "") {
+			public String run(RolePlayer sender, String args[]) {
 				if (jail == null) {
 					jail = sender.getLocation();
 					return "Successfully set jail at current location!";
@@ -183,18 +154,27 @@ public class RPCommands {
 				return "Unable to set a jail as one already exists! Use /rp remove jail to remove the current one!";
 			}
 		});
-		commands.put("rmjail", new RPCommand("rp.rmjail	", 1, "") {
-			public String run(Player sender, String args[]) {
+		add(new RPCommand("rmjail", "rp.rmjail	", 1, "") {
+			public String run(RolePlayer sender, String args[]) {
 				jail = null;
 				return "Removed the current jail!";
 			}
 		});
-		
+
+	}
+
+	public RPCommand get(String name) {
+		return commands.get(name);
+	}
+
+	public void add(RPCommand command) {
+		commands.put(command.getName(), command);
 	}
 
 	public String command(Player sender, String args[]) {
 		if (args.length > 0 && commands.containsKey(args[0])) {
-			return commands.get(args[0]).run(sender, args);
+			RolePlayer player = roleManager.getRolePlayer(sender);
+			return commands.get(args[0]).call(player, args);
 		}
 		return "Invalid command";
 	}

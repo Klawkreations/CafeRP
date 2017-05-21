@@ -13,6 +13,9 @@ public class RolePlayer {
 	}
 
 	public Role getRole() {
+		if(role == null){
+			return Role.defaultRole;
+		}
 		return role;
 	}
 
