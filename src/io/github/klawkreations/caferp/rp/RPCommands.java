@@ -52,7 +52,11 @@ public class RPCommands {
 		});
 		add(new RPCommand("help", "rp.help", 1, "") {
 			public String run(RolePlayer sender, String args[]) {
-				return sender.getRole().getCommands();
+				String commandString = "";
+				for(String s : sender.getRole().getCommands()){
+					commandString += get(s).toString() + "\n";
+				}
+				return commandString;
 			}
 		});
 		add(new RPCommand("payday", "rp.payday", 1, "") {
@@ -189,8 +193,17 @@ public class RPCommands {
 				String permissions = commands.get(alias.getCommandToCall()).getPermission();
 				add(new RPCommand(alias.getName(), permissions, 1, alias.getDescription()){
 					public String run(RolePlayer sender, String args[]) {
+						System.out.println(alias.getCommandToCall());
 						args = alias.getArgs();
-						return commands.get(alias.getCommandToCall()).call(sender, args);
+						for(String arg : args){
+							System.out.println(arg);
+						}
+						String returnValue = commands.get(alias.getCommandToCall()).run(sender, args);
+						System.out.println(returnValue);
+						if(alias.getReturnValue() == null){
+							return returnValue;
+						} 
+						return alias.getReturnValue();
 					}
 				});
 			}

@@ -40,7 +40,7 @@ public class RolePlayer {
 	}
 	
 	public boolean hasCommand(String command){
-		return role.hasCommand(command);
+		return getRole().hasCommand(command);
 	}
 
 	@Override

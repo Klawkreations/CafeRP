@@ -52,7 +52,7 @@ public class RPCommand {
 	@Override
 	public String toString() {
 		if (description.isEmpty()) {
-			return description;
+			return name;
 		}
 		return name + " - " + description;
 	}

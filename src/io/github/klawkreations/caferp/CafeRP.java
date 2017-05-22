@@ -74,18 +74,21 @@ public final class CafeRP extends JavaPlugin implements Listener {
 			HashSet<String> roleNames = new HashSet<String>(rolesConfig.getKeys(false));
 			for (String key : roleNames) {
 				if (key.equals("default")) {
+					System.out.println("Making default role");
 					Role.defaultRole = setupRole(rolesConfig, key, aliases);
 				} else {
 					roles.add(setupRole(rolesConfig, key, aliases));
 				}
 			}
 			if (Role.defaultRole == null) {
+				System.out.println("Making default role");
 				String[] defaults = { "list", "join", "switch", "leave", "help", "payday" };
 				ArrayList<String> commands = new ArrayList<String>(Arrays.asList(defaults));
 				Role.defaultRole = new Role(0, "Citizen", "", commands);
 			}
 		} catch (Exception e) {
-			System.out.println("Could not load the config!");
+			System.out.println("Could not load the roles.yml config!");
+			e.printStackTrace();
 		}
 
 		return aliases;
@@ -101,17 +104,22 @@ public final class CafeRP extends JavaPlugin implements Listener {
 			if (item instanceof String) {
 				String command = (String) item;
 				if (command.contains("-")) { // If it is an alias
-					String[] split = command.split("-", 3);
-					if(split.length == 3){
-						String commandName = split[0].trim();
-						split[1] = split[1].trim();
-						String commandToCall = split[1].split(" ")[0].trim();
-						String[] args = split[1].split(" ");
+					String[] split = command.split("-");
+					if(split.length == 4 || split.length == 3){
+						int index = 0;
+						String commandName = split[index++].trim();
+						String returnValue = null;
+						if(split.length == 4){
+							returnValue = split[index++].trim();
+						}
+						split[index] = split[index].trim();
+						String commandToCall = split[index].split(" ")[0].trim();
+						String[] args = split[index++].split(" ");
 						for(String arg : args){
 							arg = arg.trim();
 						}
-						String description = split[2].trim();
-						aliases.add(new RPCommandAlias(commandName, commandToCall, args, description));
+						String description = split[index].trim();
+						aliases.add(new RPCommandAlias(commandName, returnValue, commandToCall, args, description));
 						commands.add(commandName);
 					}
 				} else {

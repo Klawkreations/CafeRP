@@ -5,12 +5,14 @@ public class RPCommandAlias {
 	private String name;
 	private String commandToCall;
 	private String description;
+	private String returnValue;
 
-	public RPCommandAlias(String name, String commandToCall, String[] args, String description) {
+	public RPCommandAlias(String name, String returnValue, String commandToCall, String[] args, String description) {
 		this.name = name;
 		this.commandToCall = commandToCall;
 		this.args = args;
 		this.description = description;
+		this.returnValue = returnValue;
 	}
 
 	public String[] getArgs() {
@@ -23,6 +25,10 @@ public class RPCommandAlias {
 
 	public String getCommandToCall() {
 		return commandToCall;
+	}
+	
+	public String getReturnValue(){
+		return returnValue;
 	}
 	
 	public String getDescription(){
