@@ -13,7 +13,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
-import net.milkbowl.vault.economy.Economy;
+import io.github.klawkreations.caferp.CafeRP;
 
 public class RPRoles {
 	private ArrayList<Role> roles;
@@ -22,12 +22,10 @@ public class RPRoles {
 	private ScoreboardManager manager;
 	private Scoreboard board;
 
-	private final int PAYOUT_PERIOD = (60 * 10);
 	private RPTimer payoutTimer;
 
-	private Economy econ;
 
-	public RPRoles(Economy econ, ArrayList<Role> roles) {
+	public RPRoles(ArrayList<Role> roles) {
 		this.roles = new ArrayList<Role>(roles);
 		playerRoles = new HashMap<Player, RolePlayer>();
 
@@ -48,10 +46,8 @@ public class RPRoles {
 		for (Player players : Bukkit.getOnlinePlayers()) {
 			players.setScoreboard(board);
 		}
-
-		this.econ = econ;
 		
-		payoutTimer = new RPTimer(PAYOUT_PERIOD, new ActionListener() {
+		payoutTimer = new RPTimer(CafeRP.getPayoutSeconds(), new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Bukkit.broadcastMessage("It's payday!");
@@ -120,7 +116,7 @@ public class RPRoles {
 	}
 
 	public void payOutSalary(RolePlayer rp) {
-		econ.depositPlayer(rp.getPlayer(), rp.getRole().getSalary());
+		CafeRP.getEcononomy().depositPlayer(rp.getPlayer(), rp.getRole().getSalary());
 		rp.getPlayer().sendMessage("$" + rp.getRole() + " has been deposited into your account.");
 	}
 

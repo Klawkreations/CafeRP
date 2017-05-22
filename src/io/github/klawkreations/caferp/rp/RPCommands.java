@@ -11,7 +11,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import io.github.klawkreations.caferp.CafeRP;
 import io.github.klawkreations.caferp.RPCommandAlias;
-import net.milkbowl.vault.economy.Economy;
 
 public class RPCommands {
 	private Location jail;
@@ -19,14 +18,11 @@ public class RPCommands {
 	private Map<String, RPCommand> commands;
 	private RPRoles roleManager;
 
-	private Economy econ;
-
-	public RPCommands(RPRoles playerRoles, Economy econ, ArrayList<RPCommandAlias> aliases) {
+	public RPCommands(RPRoles playerRoles, ArrayList<RPCommandAlias> aliases) {
 		previousLocationOfJailed = new HashMap<>();
 
 		jail = null;
 
-		this.econ = econ;
 		this.roleManager = playerRoles;
 
 		commands = new HashMap<String, RPCommand>();

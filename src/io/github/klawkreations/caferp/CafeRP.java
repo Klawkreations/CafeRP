@@ -2,9 +2,9 @@ package io.github.klawkreations.caferp;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.logging.Logger;
-import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -24,11 +24,13 @@ import io.github.klawkreations.caferp.rp.Role;
 import net.milkbowl.vault.economy.Economy;
 
 public final class CafeRP extends JavaPlugin implements Listener {
+	private static final Logger log = Logger.getLogger("Minecraft");
+	private static int payoutSeconds;
+
+	private static Economy econ = null;
+
 	private RPRoles roleManager;
 	private RPCommands rpCommands;
-
-	private static final Logger log = Logger.getLogger("Minecraft");
-	private static Economy econ = null;
 
 	@Override
 	public void onEnable() {
@@ -42,12 +44,13 @@ public final class CafeRP extends JavaPlugin implements Listener {
 
 		getDataFolder().mkdir();
 
-		ArrayList<Role> roles = new ArrayList<Role>();
-		ArrayList<RPCommandAlias> aliases = loadRoles(roles); 
+		ArrayList<RPCommandAlias> aliases = loadConfig();
+		
+		ArrayList<Role> roles = loadRoles(); 
 		log("Created roles " + roles.toString());
 		
-		roleManager = new RPRoles(econ, roles);
-		rpCommands = new RPCommands(roleManager, econ, aliases);
+		roleManager = new RPRoles(roles);
+		rpCommands = new RPCommands(roleManager, aliases);
 		
 	}
 
@@ -67,17 +70,56 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		roleManager.leaveRole(event.getPlayer());
 	}
 
-	private ArrayList<RPCommandAlias> loadRoles(ArrayList<Role> roles) {
+	private ArrayList<RPCommandAlias> loadConfig() {
 		ArrayList<RPCommandAlias> aliases = new ArrayList<RPCommandAlias>();
+		try {
+			YamlConfiguration config = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "config.yml"));
+			payoutSeconds = config.getInt("payout-period", 600);
+
+			for (Object item : config.getList("aliases", new ArrayList<String>())) {
+				if (item instanceof String) {
+					String command = (String) item;
+
+					String[] split = command.split("-");
+					if (split.length == 4 || split.length == 3) {
+						int index = 0;
+						String commandName = split[index++].trim();
+						String returnValue = null;
+						if (split.length == 4) {
+							returnValue = split[index++].trim();
+						}
+						split[index] = split[index].trim();
+						String commandToCall = split[index].split(" ")[0].trim();
+						String[] args = split[index++].split(" ");
+						for (String arg : args) {
+							arg = arg.trim();
+						}
+						String description = split[index].trim();
+						aliases.add(new RPCommandAlias(commandName, returnValue, commandToCall, args, description));
+
+					}
+
+				}
+			}
+
+		} catch (Exception e) {
+			System.out.println("Could not load the config.yml config!");
+			e.printStackTrace();
+		}
+		return aliases;
+	}
+
+	private ArrayList<Role> loadRoles() {
+		ArrayList<Role> roles = new ArrayList<Role>();
 		try {
 			YamlConfiguration rolesConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "roles.yml"));
 			HashSet<String> roleNames = new HashSet<String>(rolesConfig.getKeys(false));
 			for (String key : roleNames) {
 				if (key.equals("default")) {
 					System.out.println("Making default role");
-					Role.defaultRole = setupRole(rolesConfig, key, aliases);
+					Role.defaultRole = setupRole(rolesConfig, key);
 				} else {
-					roles.add(setupRole(rolesConfig, key, aliases));
+					roles.add(setupRole(rolesConfig, key));
 				}
 			}
 			if (Role.defaultRole == null) {
@@ -90,11 +132,10 @@ public final class CafeRP extends JavaPlugin implements Listener {
 			System.out.println("Could not load the roles.yml config!");
 			e.printStackTrace();
 		}
-
-		return aliases;
+		return roles;
 	}
 
-	private Role setupRole(YamlConfiguration config, String key, ArrayList<RPCommandAlias> aliases) {
+	private Role setupRole(YamlConfiguration config, String key) {
 		String title = config.getString(key + ".title",
 				Character.toUpperCase(key.charAt(0)) + key.substring(1).toLowerCase());
 		String desc = config.getString(key + ".description", "");
@@ -103,28 +144,7 @@ public final class CafeRP extends JavaPlugin implements Listener {
 		for (Object item : config.getList(key + ".commands", new ArrayList<String>())) {
 			if (item instanceof String) {
 				String command = (String) item;
-				if (command.contains("-")) { // If it is an alias
-					String[] split = command.split("-");
-					if(split.length == 4 || split.length == 3){
-						int index = 0;
-						String commandName = split[index++].trim();
-						String returnValue = null;
-						if(split.length == 4){
-							returnValue = split[index++].trim();
-						}
-						split[index] = split[index].trim();
-						String commandToCall = split[index].split(" ")[0].trim();
-						String[] args = split[index++].split(" ");
-						for(String arg : args){
-							arg = arg.trim();
-						}
-						String description = split[index].trim();
-						aliases.add(new RPCommandAlias(commandName, returnValue, commandToCall, args, description));
-						commands.add(commandName);
-					}
-				} else {
-					commands.add(command);
-				}
+				commands.add(command);
 			}
 		}
 		return new Role(salary, title, desc, commands);
@@ -169,5 +189,9 @@ public final class CafeRP extends JavaPlugin implements Listener {
 
 	public static void log(String s) {
 		log.info(s);
+	}
+
+	public static int getPayoutSeconds() {
+		return payoutSeconds;
 	}
 }
