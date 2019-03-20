@@ -1,9 +1,7 @@
-package io.github.klawkreations.caferp.rp.roles;
+package io.github.klawkreations.caferp.rp;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import io.github.klawkreations.caferp.rp.Role;
 
 public class RolePlayer {
 	private Role role;
@@ -15,6 +13,9 @@ public class RolePlayer {
 	}
 
 	public Role getRole() {
+		if(role == null){
+			return Role.defaultRole;
+		}
 		return role;
 	}
 
@@ -39,7 +40,7 @@ public class RolePlayer {
 	}
 	
 	public boolean hasCommand(String command){
-		return role.hasCommand(command);
+		return getRole().hasCommand(command);
 	}
 
 	@Override
